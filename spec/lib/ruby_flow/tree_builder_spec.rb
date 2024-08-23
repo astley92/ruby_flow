@@ -52,17 +52,5 @@ RSpec.describe RubyFlow::TreeBuilder do
         )
       end
     end
-
-    context "when the content is not valid ruby code" do
-      let(:ruby_content) { <<~RUBY }
-        class Car; end
-        class Engine; end
-        def some_method
-      RUBY
-
-      it "does not error" do
-        expect { builder.call(ruby_content) }.not_to raise_error
-      end
-    end
   end
 end

@@ -7,7 +7,7 @@ module RubyFlow
     attr_reader :class_list
 
     def initialize
-      @class_list = Set.new
+      @class_list = []
     end
 
     def call(content)
@@ -33,10 +33,7 @@ module RubyFlow
           stack << [child, path]
         end
       end
-
-      class_list.to_a
-    rescue Parser::SyntaxError
-      class_list.to_a
+      class_list.uniq!
     end
   end
 end
