@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ["astley92@hotmail.com"]
 
   spec.summary = "A command line gem to visualize your ruby projects"
-  spec.description= "A command line gem to visualize your ruby projects"
+  spec.description = "A command line gem to visualize your ruby projects"
   spec.homepage = "https://github.com/astley92/ruby_flow"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
