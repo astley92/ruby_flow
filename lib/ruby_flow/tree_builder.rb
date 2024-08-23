@@ -32,12 +32,13 @@ module RubyFlow
         elsif current.type == :send
           sender = path || "global"
           sendee = current.children.first.loc.expression.source
-          sendee = if sendee.start_with?("::")
-            sendee[2..]
-          else
-            [path, sendee].compact.join("::")
-          end
-          class_usage[sender] = class_usage[sender] || {calls: []}
+          sendee =
+            if sendee.start_with?("::")
+              sendee[2..]
+            else
+              [path, sendee].compact.join("::")
+            end
+          class_usage[sender] = class_usage[sender] || { calls: [] }
           class_usage[sender][:calls] << sendee
         end
 
