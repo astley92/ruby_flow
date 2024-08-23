@@ -58,7 +58,7 @@ RSpec.describe RubyFlow::TreeBuilder do
       end
     end
 
-    context "when an unknown class is called" do
+    context "when an unknown class is called that cannot be inferred" do
       let(:ruby_content) { <<~RUBY }
         module Car
           class Engine; end
@@ -82,6 +82,49 @@ RSpec.describe RubyFlow::TreeBuilder do
             unknown_class_calls: contain_exactly(
               "MyApp::Boat",
             )
+          }
+        })
+      end
+    end
+
+    context "when an unknown class is called that can be inferred" do
+      let(:ruby_content) { <<~RUBY }
+        module Car
+          class Engine; end
+        end
+
+        module MyApp
+          class JetSki; end
+
+          def call
+            ::Car::Engine.start
+            Boat.start
+          end
+
+          module WaterVehicles
+            def call
+              JetSki.start
+            end
+          end
+        end
+      RUBY
+
+      it "finds the expected class usage" do
+        builder.detect_class_usage(ruby_content)
+        expect(builder.class_usage).to match({
+          "MyApp" => {
+            calls: [
+              "Car::Engine",
+            ],
+            unknown_class_calls: contain_exactly(
+              "MyApp::Boat",
+            )
+          },
+          "MyApp::WaterVehicles" => {
+            calls: [
+              "MyApp::JetSki",
+            ],
+            unknown_class_calls: []
           }
         })
       end
