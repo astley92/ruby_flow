@@ -3,6 +3,48 @@
 RSpec.describe RubyFlow::TreeBuilder do
   subject(:builder) { described_class.new }
 
+  describe "class usage generation" do
+    let(:ruby_content) { <<~RUBY }
+      module MyApp
+        def call
+          ::Car::Engine.start
+          Car::Engine.start
+          Bus.start
+        end
+      end
+    RUBY
+
+    it "finds the expected class usage" do
+      builder.call(ruby_content)
+      expect(builder.class_usage).to match({
+        "MyApp" => {
+          calls: contain_exactly(
+            "Car::Engine",
+            "MyApp::Car::Engine",
+            "MyApp::Bus"
+          )
+        }
+      })
+    end
+
+    context "when a class is called from the global namespace" do
+      let(:ruby_content) { <<~RUBY }
+        Car::Engine.start
+      RUBY
+
+      it "puts it in the global key" do
+        builder.call(ruby_content)
+        expect(builder.class_usage).to eq({
+          "global" => {
+            calls: [
+              "Car::Engine"
+            ]
+          }
+        })
+      end
+    end
+  end
+
   describe "class list generation" do
     let(:ruby_content) { <<~RUBY }
       class Car; end
