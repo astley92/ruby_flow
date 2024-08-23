@@ -2,7 +2,4 @@
 
 require_relative "ruby_flow/version"
 
-module RubyFlow
-  class Error < StandardError; end
-  # Your code goes here...
-end
+module RubyFlow; end
