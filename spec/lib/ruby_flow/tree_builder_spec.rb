@@ -1,30 +1,90 @@
 # frozen_string_literal: true
 
 RSpec.describe RubyFlow::TreeBuilder do
-  subject(:builder) { described_class.new }
+  let(:builder)  { described_class.new }
 
-  describe "class usage generation" do
+  describe ".detect_class_definitions" do
     let(:ruby_content) { <<~RUBY }
       module MyApp
+        module Car
+          class Engine; end
+        end
+
         def call
-          ::Car::Engine.start
           Car::Engine.start
-          Bus.start
         end
       end
     RUBY
 
+    before do
+      builder.detect_class_definitions(ruby_content)
+    end
+
     it "finds the expected class usage" do
-      builder.call(ruby_content)
+      builder.detect_class_usage(ruby_content)
       expect(builder.class_usage).to match({
         "MyApp" => {
           calls: contain_exactly(
-            "Car::Engine",
             "MyApp::Car::Engine",
-            "MyApp::Bus"
-          )
+          ),
+          unknown_class_calls: [],
         }
       })
+    end
+
+    context "when a class call is scoped globally" do
+      let(:ruby_content) { <<~RUBY }
+        module Car
+          class Engine; end
+        end
+
+        module MyApp
+          def call
+            ::Car::Engine.start
+          end
+        end
+      RUBY
+
+      it "finds the expected class usage" do
+        builder.detect_class_usage(ruby_content)
+        expect(builder.class_usage).to match({
+          "MyApp" => {
+            calls: contain_exactly(
+              "Car::Engine",
+            ),
+            unknown_class_calls: [],
+          }
+        })
+      end
+    end
+
+    context "when an unknown class is called" do
+      let(:ruby_content) { <<~RUBY }
+        module Car
+          class Engine; end
+        end
+
+        module MyApp
+          def call
+            ::Car::Engine.start
+            Boat.start
+          end
+        end
+      RUBY
+
+      it "finds the expected class usage" do
+        builder.detect_class_usage(ruby_content)
+        expect(builder.class_usage).to match({
+          "MyApp" => {
+            calls: [
+              "Car::Engine",
+            ],
+            unknown_class_calls: contain_exactly(
+              "MyApp::Boat",
+            )
+          }
+        })
+      end
     end
 
     context "when a class is called from the global namespace" do
@@ -33,12 +93,13 @@ RSpec.describe RubyFlow::TreeBuilder do
       RUBY
 
       it "puts it in the global key" do
-        builder.call(ruby_content)
+        builder.detect_class_usage(ruby_content)
         expect(builder.class_usage).to eq({
           "global" => {
-            calls: [
+            calls: [],
+            unknown_class_calls: [
               "Car::Engine"
-            ]
+            ],
           }
         })
       end
@@ -52,7 +113,7 @@ RSpec.describe RubyFlow::TreeBuilder do
     RUBY
 
     it "finds the expected classes" do
-      builder.call(ruby_content)
+      builder.detect_class_definitions(ruby_content)
       expect(builder.class_list).to contain_exactly("Car", "Engine")
     end
 
@@ -64,7 +125,7 @@ RSpec.describe RubyFlow::TreeBuilder do
       RUBY
 
       it "finds the expected classes" do
-        builder.call(ruby_content)
+        builder.detect_class_definitions(ruby_content)
         expect(builder.class_list).to contain_exactly("Car", "Car::Engine")
       end
     end
@@ -76,7 +137,7 @@ RSpec.describe RubyFlow::TreeBuilder do
       RUBY
 
       it "does not return duplicates in the class list" do
-        builder.call(ruby_content)
+        builder.detect_class_definitions(ruby_content)
         expect(builder.class_list).to contain_exactly("Car")
       end
     end
@@ -88,7 +149,7 @@ RSpec.describe RubyFlow::TreeBuilder do
       RUBY
 
       it "finds the expected classes" do
-        builder.call(ruby_content)
+        builder.detect_class_definitions(ruby_content)
         expect(builder.class_list).to contain_exactly(
           "Car", "Car::Engine", "Animal", "Animal::Bird", "Animal::Bird::Beak"
         )
