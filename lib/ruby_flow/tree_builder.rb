@@ -5,19 +5,24 @@ require_relative("tree_builder/class_detection.rb")
 
 module RubyFlow
   class TreeBuilder
-    attr_reader :class_list, :class_usage
-
+    attr_reader :classes
     def initialize
-      @class_list = []
-      @class_usage = {}
+      @classes = {}
     end
 
     def detect_class_definitions(content)
       parsed_content = Parser::CurrentRuby.parse(content)
       RubyFlow::TreeBuilder::ClassDetection.run(parsed_content) do |class_name|
-        class_list << class_name unless class_list.include?(class_name)
+        classes[class_name] = { calls: [], unknown_class_calls: [] } unless classes.keys.include?(class_name)
       end
-      class_list.uniq!
+    end
+
+    def class_list
+      classes.keys
+    end
+
+    def class_usage
+      classes.select { |_, v| v[:calls].any? || v[:unknown_class_calls].any? }
     end
 
     def detect_class_usage(content)
@@ -36,9 +41,9 @@ module RubyFlow
           if first_child.class == Parser::AST::Node && first_child.type == :const
             sender = path || "global"
             sendee, known = infer_correct_class(current.children.first.loc.expression.source, path)
-            class_usage[sender] = class_usage[sender] || { calls: [], unknown_class_calls: [] }
+            classes[sender] = classes[sender] || { calls: [], unknown_class_calls: [] }
             key = known ? :calls : :unknown_class_calls
-            class_usage[sender][key] << sendee
+            classes[sender][key] << sendee
           end
         end
 
