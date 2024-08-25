@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe RubyFlow::TreeBuilder do
-  let(:builder)  { described_class.new }
+  let(:builder) { described_class.new }
 
   describe ".detect_class_definitions" do
     let(:ruby_content) { <<~RUBY }
@@ -28,7 +28,7 @@ RSpec.describe RubyFlow::TreeBuilder do
             "MyApp::Car::Engine",
           ),
           unknown_class_calls: [],
-        }
+        },
       })
     end
 
@@ -53,7 +53,7 @@ RSpec.describe RubyFlow::TreeBuilder do
               "Car::Engine",
             ),
             unknown_class_calls: [],
-          }
+          },
         })
       end
     end
@@ -81,8 +81,8 @@ RSpec.describe RubyFlow::TreeBuilder do
             ],
             unknown_class_calls: contain_exactly(
               "MyApp::Boat",
-            )
-          }
+            ),
+          },
         })
       end
     end
@@ -118,14 +118,14 @@ RSpec.describe RubyFlow::TreeBuilder do
             ],
             unknown_class_calls: contain_exactly(
               "MyApp::Boat",
-            )
+            ),
           },
           "MyApp::WaterVehicles" => {
             calls: [
               "MyApp::JetSki",
             ],
-            unknown_class_calls: []
-          }
+            unknown_class_calls: [],
+          },
         })
       end
     end
@@ -141,9 +141,9 @@ RSpec.describe RubyFlow::TreeBuilder do
           "global" => {
             calls: [],
             unknown_class_calls: [
-              "Car::Engine"
+              "Car::Engine",
             ],
-          }
+          },
         })
       end
     end
@@ -194,7 +194,7 @@ RSpec.describe RubyFlow::TreeBuilder do
       it "finds the expected classes" do
         builder.detect_class_definitions(ruby_content)
         expect(builder.class_list).to contain_exactly(
-          "Car", "Car::Engine", "Animal", "Animal::Bird", "Animal::Bird::Beak"
+          "Car", "Car::Engine", "Animal", "Animal::Bird", "Animal::Bird::Beak",
         )
       end
     end

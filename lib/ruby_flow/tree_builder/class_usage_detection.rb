@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require("byebug")
 
 module RubyFlow
@@ -7,7 +9,7 @@ module RubyFlow
         stack = [[parsed_content, nil]]
         while stack.any?
           current, path = stack.pop
-          next if current.class != Parser::AST::Node
+          next unless current.instance_of?(Parser::AST::Node)
 
           if current.type == :class || current.type == :module
             const_child = current.children.first
@@ -15,10 +17,9 @@ module RubyFlow
             path = [path, class_name].compact.join("::")
           elsif current.type == :send
             first_child = current.children.first
-            if first_child.class == Parser::AST::Node && first_child.type == :const
+            if first_child.instance_of?(Parser::AST::Node) && first_child.type == :const
               sender = path || "global"
               sendee, known = infer_correct_class(current.children.first.loc.expression.source, path, class_list)
-              key = known ? :calls : :unknown_class_calls
               yield(sender, sendee, known)
             end
           end
@@ -51,9 +52,7 @@ module RubyFlow
 
             parts = parts[...-1]
           end
-          if !known
-            name = [path, class_name].join("::")
-          end
+          name = [path, class_name].join("::") unless known
         end
 
         return name, known
