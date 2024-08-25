@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require("parser/current")
-require("byebug")
 
 module RubyFlow
   class TreeBuilder
@@ -74,7 +73,7 @@ module RubyFlow
         name = class_name[2..]
         known = class_list.include?(name)
       elsif path.nil?
-        name = class_name.delete_prefix("::")
+        name = class_name
         known = class_list.include?(name)
       else
         possible_path = path
