@@ -25,10 +25,7 @@ RSpec/ExampleLength:
   Enabled: false
 
 Layout/EndAlignment:
-  EnforcedStyle: start_of_line
-
-Layout/ElseAlignment:
-  Enabled: false
+  EnforcedStyleAlignWith: variable
 
 Metrics/PerceivedComplexity:
   Enabled: false
