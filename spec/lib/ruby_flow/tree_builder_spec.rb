@@ -12,6 +12,10 @@ RSpec.describe RubyFlow::TreeBuilder do
 
         def call
           Car::Engine.start
+          Event::Processor.process(
+            Vehicle::Started,
+            type: :car,
+          )
         end
       end
     RUBY
@@ -26,6 +30,8 @@ RSpec.describe RubyFlow::TreeBuilder do
         "MyApp" => {
           mentions: contain_exactly(
             "MyApp::Car::Engine",
+            "Event::Processor",
+            "Vehicle::Started",
           ),
         },
       })

@@ -9,21 +9,26 @@ module RubyFlow
           current, path = stack.pop
           next unless current.instance_of?(Parser::AST::Node)
 
-          if current.type == :class || current.type == :module
+          case current.type
+          when :class, :module
             const_child = current.children.first
             class_name = const_child.loc.expression.source
             path = [path, class_name].compact.join("::")
-          elsif current.type == :send
+          when :send
             first_child = current.children.first
             if first_child.instance_of?(Parser::AST::Node) && first_child.type == :const
               sender = path || "global"
               sendee, known = infer_correct_class(current.children.first.loc.expression.source, path, class_list)
               yield(sender, sendee, known)
             end
+          when :const
+            sender = path || "global"
+            sendee, known = infer_correct_class(current.loc.expression.source, path, class_list)
+            yield(sender, sendee, known) unless sendee == path
           end
 
           current.children.each do |child|
-            stack << [child, path]
+            stack << [child, path] unless current.type == :const
           end
         end
       end
