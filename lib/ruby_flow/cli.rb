@@ -13,15 +13,23 @@ module RubyFlow
 
       class Version < Dry::CLI::Command
         desc("print the current version of ruby_flow")
-        def call(*)
+
+        def call(...)
           RubyFlow::Commands::DisplayVersion.call
         end
       end
 
       class BuildDefinition < Dry::CLI::Command
         desc("Build the class representation file for a given directory")
-        def call(*)
-          RubyFlow::Commands::BuildDefinition.call
+        option(
+          :output_file,
+          aliases: %w[-o --output],
+          desc: "Provide the filename that the class representation should be stored",
+          required: false,
+        )
+
+        def call(...)
+          RubyFlow::Commands::BuildDefinition.call(...)
         end
       end
 
