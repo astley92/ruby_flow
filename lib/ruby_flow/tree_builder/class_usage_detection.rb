@@ -42,7 +42,6 @@ module RubyFlow
           parts = possible_path.split("::")
           while parts.any?
             possible_name = [parts.join("::"), class_name].join("::")
-            puts "Checking: #{possible_name} in #{class_list.inspect}"
             if class_list.include?(possible_name)
               name = possible_name
               known = true
