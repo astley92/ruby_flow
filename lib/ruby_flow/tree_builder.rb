@@ -32,7 +32,7 @@ module RubyFlow
       RubyFlow::TreeBuilder::ClassUsageDetection.run(parsed_content, classes.keys) do |sender, sendee, is_known|
         classes[sender] = classes[sender] || { calls: [], unknown_class_calls: [] }
         key = is_known ? :calls : :unknown_class_calls
-        classes[sender][key] << sendee
+        classes[sender][key] << sendee unless classes[sender][key].include?(sendee)
       end
     end
   end

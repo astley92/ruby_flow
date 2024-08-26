@@ -80,7 +80,7 @@ RSpec.describe RubyFlow::TreeBuilder do
               "Car::Engine",
             ],
             unknown_class_calls: contain_exactly(
-              "MyApp::Boat",
+              "Boat",
             ),
           },
         })
@@ -117,7 +117,7 @@ RSpec.describe RubyFlow::TreeBuilder do
               "Car::Engine",
             ],
             unknown_class_calls: contain_exactly(
-              "MyApp::Boat",
+              "Boat",
             ),
           },
           "MyApp::WaterVehicles" => {
