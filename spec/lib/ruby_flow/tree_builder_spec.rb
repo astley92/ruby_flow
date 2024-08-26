@@ -24,10 +24,9 @@ RSpec.describe RubyFlow::TreeBuilder do
       builder.detect_class_usage(ruby_content)
       expect(builder.class_usage).to match({
         "MyApp" => {
-          calls: contain_exactly(
+          mentions: contain_exactly(
             "MyApp::Car::Engine",
           ),
-          unknown_class_calls: [],
         },
       })
     end
@@ -49,10 +48,9 @@ RSpec.describe RubyFlow::TreeBuilder do
         builder.detect_class_usage(ruby_content)
         expect(builder.class_usage).to match({
           "MyApp" => {
-            calls: contain_exactly(
+            mentions: contain_exactly(
               "Car::Engine",
             ),
-            unknown_class_calls: [],
           },
         })
       end
@@ -76,12 +74,10 @@ RSpec.describe RubyFlow::TreeBuilder do
         builder.detect_class_usage(ruby_content)
         expect(builder.class_usage).to match({
           "MyApp" => {
-            calls: [
+            mentions: [
+              "Boat",
               "Car::Engine",
             ],
-            unknown_class_calls: contain_exactly(
-              "Boat",
-            ),
           },
         })
       end
@@ -113,18 +109,15 @@ RSpec.describe RubyFlow::TreeBuilder do
         builder.detect_class_usage(ruby_content)
         expect(builder.class_usage).to match({
           "MyApp" => {
-            calls: [
+            mentions: [
+              "Boat",
               "Car::Engine",
             ],
-            unknown_class_calls: contain_exactly(
-              "Boat",
-            ),
           },
           "MyApp::WaterVehicles" => {
-            calls: [
+            mentions: [
               "MyApp::JetSki",
             ],
-            unknown_class_calls: [],
           },
         })
       end
@@ -139,8 +132,7 @@ RSpec.describe RubyFlow::TreeBuilder do
         builder.detect_class_usage(ruby_content)
         expect(builder.class_usage).to eq({
           "global" => {
-            calls: [],
-            unknown_class_calls: [
+            mentions: [
               "Car::Engine",
             ],
           },
