@@ -1,20 +1,36 @@
 # frozen_string_literal: true
 
 require("ruby_flow")
+require("dry/cli")
+
+require_relative("../commands/display_version")
+require_relative("../commands/build_definition")
 
 module RubyFlow
   module CLI
-    def self.call(_args)
-      builder = RubyFlow::TreeBuilder.new
-      Dir.glob("**/*.rb") do |file|
-        builder.detect_class_definitions(File.read(file))
+    module Commands
+      extend Dry::CLI::Registry
+
+      class Version < Dry::CLI::Command
+        desc("print the current version of ruby_flow")
+        def call(*)
+          RubyFlow::Commands::DisplayVersion.call
+        end
       end
 
-      Dir.glob("**/*.rb") do |file|
-        builder.detect_class_usage(File.read(file))
+      class BuildDefinition < Dry::CLI::Command
+        desc("Build the class representation file for a given directory")
+        def call(*)
+          RubyFlow::Commands::BuildDefinition.call
+        end
       end
 
-      File.write("tmp/#{Time.now.to_i}.json", JSON.pretty_generate(builder.classes))
+      register "version", Version, aliases: ["v", "-v", "--version"]
+      register "build", BuildDefinition, aliases: ["b", "-b", "--build"]
+    end
+
+    def self.call
+      Dry::CLI.new(RubyFlow::CLI::Commands).call
     end
   end
 end

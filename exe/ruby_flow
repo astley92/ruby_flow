@@ -6,4 +6,4 @@ require("ruby_flow")
 require("json")
 require("ruby_flow/cli")
 
-RubyFlow::CLI.call(ARGV)
+RubyFlow::CLI.call
