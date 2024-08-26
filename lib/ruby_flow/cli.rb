@@ -27,6 +27,12 @@ module RubyFlow
           desc: "Provide the filename that the class representation should be stored",
           required: false,
         )
+        option(
+          :source,
+          aliases: %w[- --source],
+          desc: "Provide the source directory of the project you wish to use to build the representation",
+          required: false,
+        )
 
         def call(...)
           RubyFlow::Commands::BuildDefinition.call(...)
