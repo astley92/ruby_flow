@@ -7,7 +7,8 @@ RSpec.describe RubyFlow::TreeBuilder do
     let(:ruby_content) { <<~RUBY }
       module MyApp
         module Car
-          class Engine; end
+          class Engine < SomeClass
+          end
         end
 
         def call

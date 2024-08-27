@@ -7,6 +7,7 @@ module RubyFlow
         stack = [[parsed_content, nil]]
         while stack.any?
           current, path = stack.pop
+          add_children = true
           next unless current.instance_of?(Parser::AST::Node)
 
           case current.type
@@ -14,6 +15,7 @@ module RubyFlow
             const_child = current.children.first
             class_name = const_child.loc.expression.source
             path = [path, class_name].compact.join("::")
+            byebug
           when :send
             first_child = current.children.first
             if first_child.instance_of?(Parser::AST::Node) && first_child.type == :const

@@ -46,8 +46,72 @@ module RubyFlow
         end
       end
 
+      class Visualize < Dry::CLI::Command
+        desc("Generate a visualization of the given pre-built definition")
+
+        option(
+          :source,
+          aliases: %w[-s --source],
+          desc: "Provide the filename of the pre-built definition on which to base this visualization",
+          required: true,
+        )
+        option(
+          :root,
+          aliases: %w[-r --root],
+          desc: "Provide the class name that should be the root of this visualization",
+          required: true,
+        )
+        option(
+          :type,
+          aliases: %w[-t --type],
+          desc: "The type of visualization to build",
+          required: false,
+          default: "mermaid-fc",
+          values: %w[mermaid-fc],
+        )
+
+        def call(source:, type:, root:)
+          definition = JSON.parse(File.read(source))
+          raise ArgumentError, "Unknown root class #{root.inspect}" unless definition.key?(root)
+
+          truncated_suffixes = %w[FinalReactor Reactor Projector]
+          output_file = File.open("tmp/visualization_test.md", "w")
+          output_file.write("flowchart LR;\n")
+          graph_str = ""
+          stack = [root]
+          seen = []
+          depth = 0
+          while stack.any?
+            break if depth > 3
+
+            stack.count.times do
+              current = stack.pop
+              next if seen.include?(current)
+
+              suffix_to_delete = truncated_suffixes.detect { current.end_with?(_1) }
+              current = current.delete_suffix("::" + suffix_to_delete) if suffix_to_delete
+
+              output_file.write("\t#{current}(#{current})\n")
+              break if definition[current].nil? || definition[current]["mentions"].empty?
+
+              callers = definition.select { |_, v| v["mentions"].include?(current) }.to_h.keys
+              puts "#{current} is called by #{callers.inspect}"
+              callers.each do |caller|
+                graph_str = "\t#{caller}-->#{current}\n#{graph_str}"
+              end
+              stack += callers
+              seen << current
+            end
+            depth += 1
+          end
+          output_file.write("\n#{graph_str}")
+          output_file.close
+        end
+      end
+
       register "version", Version, aliases: ["v", "-v", "--version"]
       register "build", BuildDefinition, aliases: ["b", "-b", "--build"]
+      register "visualize", Visualize
     end
 
     def self.call
