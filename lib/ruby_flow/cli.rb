@@ -29,13 +29,20 @@ module RubyFlow
         )
         option(
           :source,
-          aliases: %w[- --source],
+          aliases: %w[-s --source],
           desc: "Provide the source directory of the project you wish to use to build the representation",
           required: false,
         )
+        option(
+          :excluded_dirs,
+          aliases: %w[-e --exclude-dirs],
+          desc: "Provide any directories to exclude when building the definition. Given as a comma seperated list",
+          required: false,
+        )
 
-        def call(...)
-          RubyFlow::Commands::BuildDefinition.call(...)
+        def call(**kwargs)
+          kwargs[:excluded_dirs] = kwargs[:excluded_dirs].split(",") if kwargs[:excluded_dirs]
+          RubyFlow::Commands::BuildDefinition.call(**kwargs)
         end
       end
 

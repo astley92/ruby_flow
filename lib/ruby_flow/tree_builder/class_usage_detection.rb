@@ -19,12 +19,12 @@ module RubyFlow
             if first_child.instance_of?(Parser::AST::Node) && first_child.type == :const
               sender = path || "global"
               sendee, known = infer_correct_class(current.children.first.loc.expression.source, path, class_list)
-              yield(sender, sendee, known)
+              yield(sender, sendee, known) if known
             end
           when :const
             sender = path || "global"
             sendee, known = infer_correct_class(current.loc.expression.source, path, class_list)
-            yield(sender, sendee, known) unless sendee == path
+            yield(sender, sendee, known) unless sendee == path || !known
           end
 
           current.children.each do |child|
