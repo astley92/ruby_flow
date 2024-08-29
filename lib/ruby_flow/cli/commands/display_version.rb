@@ -2,8 +2,10 @@
 
 module RubyFlow
   module Commands
-    module DisplayVersion
-      def self.call
+    class DisplayVersion < Dry::CLI::Command
+      desc("print the current version of ruby_flow")
+
+      def call
         puts "v#{RubyFlow::VERSION}"
       end
     end
