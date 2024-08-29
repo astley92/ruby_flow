@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-require("byebug")
+require("parser/current")
 
 module RubyFlow
   class TreeBuilder
     module ClassDetection
-      def self.run(parsed_content)
+      def self.run(content)
+        class_list = []
+        parsed_content = Parser::CurrentRuby.parse(content)
         stack = [[parsed_content, nil]]
         while stack.any?
           current, path = stack.pop
@@ -16,11 +18,11 @@ module RubyFlow
             class_name = const_child.loc.expression.source
             parent_classes = class_name.split("::")[...-1]
             while parent_classes.any?
-              yield(parent_classes.join("::"))
+              class_list << parent_classes.join("::")
               parent_classes = parent_classes[...-1]
             end
             full_class_name = [path, class_name].compact.join("::")
-            yield(full_class_name)
+            class_list << full_class_name
             path = [path, class_name].compact.join("::")
           end
 
@@ -28,6 +30,8 @@ module RubyFlow
             stack << [child, path]
           end
         end
+
+        class_list.uniq
       end
     end
   end

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require("parser/current")
 require_relative("tree_builder/class_detection")
 require_relative("tree_builder/class_usage_detection")
 
@@ -13,8 +12,7 @@ module RubyFlow
     end
 
     def detect_class_definitions(content)
-      parsed_content = Parser::CurrentRuby.parse(content)
-      RubyFlow::TreeBuilder::ClassDetection.run(parsed_content) do |class_name|
+      RubyFlow::TreeBuilder::ClassDetection.run(content).each do |class_name|
         classes[class_name] = { mentions: [] } unless classes.keys.include?(class_name)
       end
     end
@@ -28,8 +26,7 @@ module RubyFlow
     end
 
     def detect_class_usage(content)
-      parsed_content = Parser::CurrentRuby.parse(content)
-      RubyFlow::TreeBuilder::ClassUsageDetection.run(parsed_content, classes.keys) do |sender, sendee, _is_known|
+      RubyFlow::TreeBuilder::ClassUsageDetection.run(content, classes.keys).each do |sender, sendee|
         classes[sender] = classes[sender] || { mentions: [] }
         classes[sender][:mentions] << sendee unless classes[sender][:mentions].include?(sendee)
       end

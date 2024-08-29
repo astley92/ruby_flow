@@ -69,43 +69,57 @@ module RubyFlow
           default: "mermaid-fc",
           values: %w[mermaid-fc],
         )
+        option(
+          :exclude,
+          aliases: %w[-e --exclude],
+          desc: "Classes to exclude",
+          required: false,
+        )
+        option(
+          :truncate,
+          aliases: %w[--truncate],
+          desc: "Classes suffixes to ignore",
+          required: false,
+        )
 
-        def call(source:, type:, root:)
+        def call(source:, type:, root:, exclude: "", truncate: "")
+          exclusions = exclude.split(",")
+          truncations = truncate.split(",")
           definition = JSON.parse(File.read(source))
-          raise ArgumentError, "Unknown root class #{root.inspect}" unless definition.key?(root)
-
-          truncated_suffixes = %w[FinalReactor Reactor Projector]
-          output_file = File.open("tmp/visualization_test.md", "w")
-          output_file.write("flowchart LR;\n")
-          graph_str = ""
           stack = [root]
+          calls = []
           seen = []
-          depth = 0
           while stack.any?
-            break if depth > 3
+            current = stack.pop
+            next if exclusions.include?(current)
+            next if seen.include?(current)
 
-            stack.count.times do
-              current = stack.pop
-              next if seen.include?(current)
+            seen << current
+            callers = definition.select { |_, v| v["mentions"].include?(current) }.keys
+            callers.each do |caller|
+              next if exclusions.include?(caller)
 
-              suffix_to_delete = truncated_suffixes.detect { current.end_with?(_1) }
-              current = current.delete_suffix("::" + suffix_to_delete) if suffix_to_delete
-
-              output_file.write("\t#{current}(#{current})\n")
-              break if definition[current].nil? || definition[current]["mentions"].empty?
-
-              callers = definition.select { |_, v| v["mentions"].include?(current) }.to_h.keys
-              puts "#{current} is called by #{callers.inspect}"
-              callers.each do |caller|
-                graph_str = "\t#{caller}-->#{current}\n#{graph_str}"
+              truncations.each do |suffix|
+                caller = caller.delete_suffix(suffix) if caller.end_with?(suffix)
               end
-              stack += callers
-              seen << current
+              calls << [caller, current]
+              stack << caller
             end
-            depth += 1
           end
-          output_file.write("\n#{graph_str}")
-          output_file.close
+
+          File.open("tmp/visualization_test.md", "w") do |f|
+            f.write("```mermaid\nflowchart LR;\n")
+            written = []
+            calls.each do |caller, callee|
+              f.write("\t#{caller}(#{caller})\n") unless written.include?(caller)
+              written << caller
+              f.write("\t#{callee}(#{callee})\n") unless written.include?(callee)
+              written << callee
+            end
+            f.write("\n")
+            f.write(calls.map { "\t" + _1.join("--->") }.join("\n"))
+            f.write("\n```")
+          end
         end
       end
 
