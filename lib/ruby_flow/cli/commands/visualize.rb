@@ -18,7 +18,7 @@ module RubyFlow
         required: true,
       )
       option(
-        :type,
+        :_type,
         aliases: %w[-t --type],
         desc: "The type of visualization to build",
         required: false,
@@ -38,7 +38,7 @@ module RubyFlow
         required: false,
       )
 
-      def call(source:, type:, root:, exclude: "", truncate: "")
+      def call(source:, _type:, root:, exclude: "", truncate: "")
         exclusions = exclude.split(",")
         truncations = truncate.split(",")
         definition = JSON.parse(File.read(source))
