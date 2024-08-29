@@ -34,6 +34,29 @@ RSpec.describe RubyFlow::TreeBuilder::ClassUsageDetection do
     )
   end
 
+  context "when there are class constants defined and used" do
+    let(:class_list) { %w[Deck Card] }
+    let(:ruby_content) { <<~RUBY }
+      module Card
+        SUITS = [:spades, :hearts, :clubs, :diamonds]
+      end
+
+      class Deck
+        def suits
+          Card::SUITS
+          Card::SUITS.first
+          Card.run
+        end
+      end
+    RUBY
+
+    it "doesn't mistake the constants for classes" do
+      expect(described_class.run(ruby_content, class_list)).to contain_exactly(
+        %w[Deck Card],
+      )
+    end
+  end
+
   context "when the class list contains a class that is used" do
     let(:class_list) { ["Boat"] }
 

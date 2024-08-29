@@ -32,12 +32,14 @@ module RubyFlow
             if first_child.instance_of?(Parser::AST::Node) && first_child.type == :const
               sender = path || "global"
               sendee = infer_correct_class(current.children.first.loc.expression.source, path, class_list)
-              usages << [sender, sendee]
+              class_tail = sendee.split("::").last
+              usages << [sender, sendee] unless class_tail.upcase == class_tail
             end
           when :const
             sender = path || "global"
             sendee = infer_correct_class(current.loc.expression.source, path, class_list)
-            usages << [sender, sendee] unless sendee == path
+            class_tail = sendee.split("::").last
+            usages << [sender, sendee] unless sendee == path || class_tail.upcase == class_tail
           else
             children_to_add = current.children
           end

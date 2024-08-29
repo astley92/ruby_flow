@@ -21,9 +21,8 @@ module RubyFlow
               class_list << parent_classes.join("::")
               parent_classes = parent_classes[...-1]
             end
-            full_class_name = [path, class_name].compact.join("::")
-            class_list << full_class_name
             path = [path, class_name].compact.join("::")
+            class_list << path
           end
 
           current.children.each do |child|
