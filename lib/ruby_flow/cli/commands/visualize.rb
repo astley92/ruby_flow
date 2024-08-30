@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative("visualize/config")
+
 module RubyFlow
   module Commands
     class Visualize < Dry::CLI::Command
@@ -38,11 +40,12 @@ module RubyFlow
         required: false,
       )
 
-      def call(source:, _type:, root:, exclude: "", truncate: "")
-        exclusions = exclude.split(",")
-        truncations = truncate.split(",")
-        definition = JSON.parse(File.read(source))
-        stack = [root]
+      def call(...)
+        config = Config.new(...)
+        exclusions = config.exclude
+        truncations = config.truncate
+        definition = JSON.parse(File.read(config.source))
+        stack = [config.root]
         calls = []
         seen = []
         while stack.any?
@@ -76,6 +79,9 @@ module RubyFlow
           f.write(calls.map { "\t#{_1.join("--->")}" }.join("\n"))
           f.write("\n```")
         end
+      rescue Config::InvalidSourceError => e
+        puts "ERROR: #{e.message}"
+        exit(1)
       end
     end
   end
