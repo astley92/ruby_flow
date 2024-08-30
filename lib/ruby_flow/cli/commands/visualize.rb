@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative("visualize/config")
+require("dry/cli")
 
 module RubyFlow
   module Commands

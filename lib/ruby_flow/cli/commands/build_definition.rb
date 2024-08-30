@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require("dry/cli")
+
 module RubyFlow
   module Commands
     class BuildDefinition < Dry::CLI::Command
