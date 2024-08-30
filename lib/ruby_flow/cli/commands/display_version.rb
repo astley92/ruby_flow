@@ -6,7 +6,7 @@ module RubyFlow
       desc("print the current version of ruby_flow")
 
       def call
-        puts "v#{RubyFlow::VERSION}"
+        puts "#{RubyFlow::VERSION}"
       end
     end
   end
