@@ -2,7 +2,7 @@
 
 require "ruby_flow"
 
-Dir.glob("lib/**/*.rb").each { puts _1; require_relative("../#{_1}") }
+Dir.glob("lib/**/*.rb").each { require_relative("../#{_1}") }
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

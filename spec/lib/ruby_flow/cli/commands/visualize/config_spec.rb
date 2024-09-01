@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe RubyFlow::Commands::Visualize::Config do
+RSpec.describe RubyFlow::CLI::Commands::Visualize::Config do
   let(:params) do
     {
       source: "spec/fixtures/visualization/basic_test_source.json",
@@ -25,8 +25,8 @@ RSpec.describe RubyFlow::Commands::Visualize::Config do
     end
   end
 
-  context "when neither the root or leaf node is given" do
-    before { params.delete(:root); params.delete(:leaf) }
+  context "when the root is not given" do
+    before { params.delete(:root) }
 
     it "raises an error" do
       expect { described_class.new(**params) }.to raise_error(described_class::MissingRequiredParamError)
