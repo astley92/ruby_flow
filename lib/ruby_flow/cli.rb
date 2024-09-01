@@ -12,9 +12,9 @@ module RubyFlow
     module Commands
       extend Dry::CLI::Registry
 
-      register "version", RubyFlow::Commands::DisplayVersion, aliases: ["v", "--v"]
-      register "build", RubyFlow::Commands::BuildDefinition, aliases: ["b"]
-      register "visualize", RubyFlow::Commands::Visualize
+      register "version", RubyFlow::CLI::Commands::DisplayVersion, aliases: ["v", "--v"]
+      register "build", RubyFlow::CLI::Commands::BuildDefinition, aliases: ["b"]
+      register "visualize", RubyFlow::CLI::Commands::Visualize
     end
 
     def self.call
