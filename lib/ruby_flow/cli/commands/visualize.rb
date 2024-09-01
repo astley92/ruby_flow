@@ -60,6 +60,15 @@ module RubyFlow
           truncations = config.truncate
           definition = JSON.parse(File.read(config.source))
 
+          truncations.each do |truncation|
+            keys = definition.select { _1.end_with?(truncation) }
+            keys.each_key do |key|
+              new_name = key.delete_suffix(truncation)
+              mentions = definition[key]["mentions"]
+              definition[new_name]["mentions"] += mentions
+              definition.delete(key)
+            end
+          end
           stack = config.root
           calls = []
           seen = []
@@ -75,9 +84,6 @@ module RubyFlow
             callees.each do |callee|
               next if exclusions.include?(callee)
 
-              truncations.each do |suffix|
-                callee = callee.delete_suffix(suffix) if callee.end_with?(suffix)
-              end
               calls << [current, callee]
               stack << callee
             end
@@ -95,9 +101,6 @@ module RubyFlow
             callers.each do |caller|
               next if exclusions.include?(caller)
 
-              truncations.each do |suffix|
-                caller = caller.delete_suffix(suffix) if caller.end_with?(suffix)
-              end
               calls << [caller, current]
               stack << caller
             end
