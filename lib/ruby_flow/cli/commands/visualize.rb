@@ -16,9 +16,21 @@ module RubyFlow
           required: true,
         )
         option(
+          :output_file,
+          aliases: %w[-o --output],
+          desc: "Provide the filename to write the visualization to",
+          required: true,
+        )
+        option(
           :root,
           aliases: %w[-r --root],
-          desc: "Provide the class name that should be the root of this visualization",
+          desc: "Provide any root nodes you want to add to the visualization",
+          required: false,
+        )
+        option(
+          :leaf,
+          aliases: %w[-l --leaf],
+          desc: "Provide any leaf nodes you want to add to the visualization",
           required: false,
         )
         option(
@@ -47,8 +59,31 @@ module RubyFlow
           exclusions = config.exclude
           truncations = config.truncate
           definition = JSON.parse(File.read(config.source))
-          stack = [config.root]
+
+          stack = config.root
           calls = []
+          seen = []
+          while stack.any?
+            current = stack.pop
+            next if exclusions.include?(current)
+            next if seen.include?(current)
+
+            seen << current
+            next unless definition[current]
+
+            callees = definition[current]["mentions"]
+            callees.each do |callee|
+              next if exclusions.include?(callee)
+
+              truncations.each do |suffix|
+                callee = callee.delete_suffix(suffix) if callee.end_with?(suffix)
+              end
+              calls << [current, callee]
+              stack << callee
+            end
+          end
+
+          stack = config.leaf
           seen = []
           while stack.any?
             current = stack.pop
@@ -68,8 +103,8 @@ module RubyFlow
             end
           end
 
-          File.open("tmp/visualization_test.md", "w") do |f|
-            f.write("```mermaid\nflowchart LR;\n")
+          File.open(config.output_file, "w") do |f|
+            f.write("flowchart LR;\n")
             written = []
             calls.each do |caller, callee|
               f.write("\t#{caller}(#{caller})\n") unless written.include?(caller)
@@ -78,8 +113,8 @@ module RubyFlow
               written << callee
             end
             f.write("\n")
-            f.write(calls.map { "\t#{_1.join("--->")}" }.join("\n"))
-            f.write("\n```")
+            f.write(calls.map { "\t#{_1.join("-->")}" }.join("\n"))
+            f.write("\n")
           end
         rescue Config::InvalidSourceError => e
           puts "ERROR: #{e.message}"

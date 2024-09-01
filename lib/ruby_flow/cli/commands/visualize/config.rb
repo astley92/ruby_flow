@@ -10,22 +10,23 @@ module RubyFlow
           class InvalidSourceError < StandardError; end
           class MissingRequiredParamError < StandardError; end
 
-          attr_reader :source, :root, :type, :exclude, :truncate, :leaf
+          attr_reader :source, :root, :type, :exclude, :truncate, :leaf, :output_file
 
-          def initialize(source: nil, root: nil, leaf: nil, type: nil, exclude: nil, truncate: nil)
+          def initialize(source: nil, root: "", leaf: "", type: nil, exclude: "", truncate: "", output_file: "tmp/output.md")
             @source = parse_source(source)
             @root = parse_root(root)
             @leaf = parse_leaf(leaf)
             @type = parse_type(type)
             @exclude = parse_exclude(exclude)
             @truncate = parse_truncate(truncate)
+            @output_file = parse_output_file(output_file)
             validate_self
           end
 
           private
 
           def validate_self
-            raise(MissingRequiredParamError, "At least one root or leaf node must be given") unless root || leaf
+            raise(MissingRequiredParamError, "At least one root or leaf node must be given") if root.empty? && leaf.empty?
 
             error_message = "The given source file does not exist #{source.inspect}"
             raise(InvalidSourceError, error_message) unless File.exist?(source)
@@ -35,12 +36,16 @@ module RubyFlow
             source
           end
 
+          def parse_output_file(output_file)
+            output_file
+          end
+
           def parse_root(root)
-            root
+            root.split(",")
           end
 
           def parse_leaf(leaf)
-            leaf
+            leaf.split(",")
           end
 
           def parse_type(type)
