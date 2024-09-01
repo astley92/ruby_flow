@@ -7,28 +7,32 @@ module RubyFlow
     class Visualize < Dry::CLI::Command
       class Config
         class InvalidSourceError < StandardError; end
+        class MissingRequiredParamError < StandardError; end
 
         attr_reader :source, :root, :type, :exclude, :truncate
-        def initialize(source: nil, root: nil, _type: nil, exclude: nil, truncate: nil)
+
+        def initialize(source: nil, root: nil, type: nil, exclude: nil, truncate: nil)
           @source = validate_source(source)
           @root = validate_root(root)
-          @type = validate_type(_type)
+          @type = validate_type(type)
           @exclude = validate_exclude(exclude)
           @truncate = validate_truncate(truncate)
         end
 
-        private 
+        private
 
         def validate_source(source)
           raise(InvalidSourceError, "The given source file does not exist #{source.inspect}") unless File.exist?(source)
-          
+
           source
         end
-        
+
         def validate_root(root)
+          raise(MissingRequiredParamError, "Root must be given") unless root
+
           root
         end
-        
+
         def validate_type(type)
           type
         end

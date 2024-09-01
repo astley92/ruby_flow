@@ -18,10 +18,10 @@ module RubyFlow
         :root,
         aliases: %w[-r --root],
         desc: "Provide the class name that should be the root of this visualization",
-        required: true,
+        required: false,
       )
       option(
-        :_type,
+        :type,
         aliases: %w[-t --type],
         desc: "The type of visualization to build",
         required: false,
