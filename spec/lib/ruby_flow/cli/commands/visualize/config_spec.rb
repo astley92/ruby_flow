@@ -4,6 +4,7 @@ RSpec.describe RubyFlow::CLI::Commands::Visualize::Config do
   let(:params) do
     {
       source: "spec/fixtures/visualization/basic_test_source.json",
+      leaf: nil,
       root: "Something",
       type: "Something",
       exclude: "Something",
@@ -28,8 +29,14 @@ RSpec.describe RubyFlow::CLI::Commands::Visualize::Config do
   context "when the root is not given" do
     before { params.delete(:root) }
 
-    it "raises an error" do
+    it "raises if the leaf node is not given" do
+      params.delete(:leaf)
       expect { described_class.new(**params) }.to raise_error(described_class::MissingRequiredParamError)
+    end
+
+    it "does not raise when the leaf node is given" do
+      params[:leaf] = "Something"
+      expect { described_class.new(**params) }.not_to raise_error
     end
   end
 end

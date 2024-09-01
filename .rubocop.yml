@@ -50,3 +50,6 @@ Style/TrailingCommaInArguments:
 
 Style/RedundantReturn:
   Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: false
