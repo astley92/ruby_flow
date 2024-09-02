@@ -1,0 +1,38 @@
+{
+  "Car": {
+    "mentions": [
+      "Engine"
+    ]
+  },
+  "Engine": {
+    "mentions": [
+      "WaterVehicle",
+      "Car"
+    ]
+  },
+  "Person": {
+    "mentions": [
+      "Clothes::Shirt"
+    ]
+  },
+  "Store": {
+    "mentions": [
+      "Clothes::Shirt",
+      "Person",
+      "ExcludeMe"
+    ]
+  },
+  "Person::Large": {
+    "mentions": []
+  },
+  "ExcludeMe": {
+    "mentions": [
+      "Clothes::Shirt"
+    ]
+  },
+  "AlsoExcludeMe": {
+    "mentions": [
+      "Clothes::Shirt"
+    ]
+  }
+}
