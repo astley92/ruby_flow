@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
-require "ruby_flow"
+require("simplecov")
+SimpleCov.start
 
+require("ruby_flow")
 Dir.glob("lib/**/*.rb").each { require_relative("../#{_1}") }
 
 RSpec.configure do |config|
