@@ -47,8 +47,10 @@ module RubyFlow
             puts "Cannot parse #{file}"
             next
           end
-
-          File.open(output_file, "w") { _1.write(JSON.pretty_generate(builder.classes)) }
+          file = File.open(output_file, "w")
+          file.write(JSON.pretty_generate(builder.classes))
+        ensure
+          file.close
         end
       end
     end
