@@ -24,9 +24,9 @@ module RubyFlow
     def detect_class_usage(content)
       RubyFlow::TreeBuilder::ClassUsageDetection.run(content, classes.keys).each do |sender, sendee|
         classes[sender] = classes[sender] || { mentions: [] }
-        classes[sender][:mentions] << sendee unless classes[sender][:mentions].include?(sendee)
+        classes[sender][:mentions] << sendee
       end
-      classes.each_value { |v| v[:mentions].sort! }
+      classes.each_value { |v| v[:mentions] }
     end
   end
 end

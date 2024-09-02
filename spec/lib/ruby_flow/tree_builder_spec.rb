@@ -76,40 +76,42 @@ RSpec.describe RubyFlow::TreeBuilder do
 
     it "finds the expected class usage" do
       builder.detect_class_usage(ruby_content)
+      classes = builder.classes
+      classes.each_value { _1[:mentions].sort! }
 
-      expect(builder.classes).to match(
+      expect(classes).to match(
         "MyApp" => {
           mentions: [
             "Boat",
             "Car::Engine",
-          ]
+          ],
         },
         "MyApp::AirVehicles" => {
           mentions: [
             "MyApp::AirVehicles::Airplane",
             "MyApp::WaterVehicles",
-          ]
+          ],
         },
         "global" => {
           mentions: [
             "Motorbike",
-          ]
+          ],
         },
         "MyApp::WaterVehicles" => {
           mentions: [
             "MyApp::WaterVehicles::JetSki",
-          ]
+          ],
         },
         "Deck" => {
           mentions: [
             "Card",
-          ]
+          ],
         },
         "Card" => {
-          mentions: []
+          mentions: [],
         },
         "Boat" => {
-          mentions: []
+          mentions: [],
         },
       )
     end
