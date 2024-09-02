@@ -6,7 +6,7 @@ require("dry/cli")
 module RubyFlow
   module CLI
     module Commands
-      class Visualize < Dry::CLI::Command
+      class Visualize < Dry::CLI::Command # rubocop:disable Metrics/ClassLength
         desc("Generate a visualization of a pre-built definition")
 
         option(
@@ -56,25 +56,14 @@ module RubyFlow
 
         def call(...)
           config = Config.new(...)
-          exclusions = config.exclude
-          truncations = config.truncate
           definition = JSON.parse(File.read(config.source))
-
-          truncations.each do |truncation|
-            keys = definition.select { _1.end_with?(truncation) }
-            keys.each_key do |key|
-              new_name = key.delete_suffix(truncation)
-              mentions = definition[key]["mentions"]
-              definition[new_name]["mentions"] += mentions
-              definition.delete(key)
-            end
-          end
+          apply_exclusions(definition, config.exclude)
+          apply_truncatations(definition, config.truncate)
           stack = config.root
           calls = []
           seen = []
           while stack.any?
             current = stack.pop
-            next if exclusions.include?(current)
             next if seen.include?(current)
 
             seen << current
@@ -82,8 +71,6 @@ module RubyFlow
 
             callees = definition[current]["mentions"]
             callees.each do |callee|
-              next if exclusions.include?(callee)
-
               calls << [current, callee]
               stack << callee
             end
@@ -93,14 +80,11 @@ module RubyFlow
           seen = []
           while stack.any?
             current = stack.pop
-            next if exclusions.include?(current)
             next if seen.include?(current)
 
             seen << current
             callers = definition.select { |_, v| v["mentions"].include?(current) }.keys
             callers.each do |caller|
-              next if exclusions.include?(caller)
-
               calls << [caller, current]
               stack << caller
             end
@@ -122,6 +106,27 @@ module RubyFlow
         rescue Config::InvalidSourceError => e
           puts "ERROR: #{e.message}"
           exit(1)
+        end
+
+        def apply_truncatations(definition, truncations)
+          truncations.each do |truncation|
+            keys = definition.select { _1.end_with?(truncation) }
+            keys.each_key do |key|
+              new_name = key.delete_suffix(truncation)
+              mentions = definition[key]["mentions"]
+              definition[new_name]["mentions"] += mentions
+              definition.delete(key)
+            end
+          end
+        end
+
+        def apply_exclusions(definition, exclusions)
+          exclusions.each do |exclude|
+            definition.delete(exclude)
+            definition.select { |_, attrs| attrs["mentions"].include?(exclude) }.each do |mentions|
+              mentions.delete(exclude)
+            end
+          end
         end
       end
     end

@@ -12,7 +12,15 @@ module RubyFlow
 
           attr_reader :source, :root, :type, :exclude, :truncate, :leaf, :output_file
 
-          def initialize(source: nil, root: "", leaf: "", type: nil, exclude: "", truncate: "", output_file: "tmp/output.md")
+          def initialize(
+            source: nil,
+            root: "",
+            leaf: "",
+            type: nil,
+            exclude: "",
+            truncate: "",
+            output_file: "tmp/output.md"
+          )
             @source = parse_source(source)
             @root = parse_root(root)
             @leaf = parse_leaf(leaf)
@@ -26,7 +34,9 @@ module RubyFlow
           private
 
           def validate_self
-            raise(MissingRequiredParamError, "At least one root or leaf node must be given") if root.empty? && leaf.empty?
+            if root.empty? && leaf.empty?
+              raise(MissingRequiredParamError, "At least one root or leaf node must be given")
+            end
 
             error_message = "The given source file does not exist #{source.inspect}"
             raise(InvalidSourceError, error_message) unless File.exist?(source)

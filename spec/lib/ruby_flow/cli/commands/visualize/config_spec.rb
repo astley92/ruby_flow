@@ -4,7 +4,7 @@ RSpec.describe RubyFlow::CLI::Commands::Visualize::Config do
   let(:params) do
     {
       source: "spec/fixtures/visualization/basic_test_source.json",
-      leaf: nil,
+      leaf: "",
       root: "Something",
       type: "Something",
       exclude: "Something",
