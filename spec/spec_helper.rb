@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
 require("simplecov")
-SimpleCov.start
+SimpleCov.start do
+  enable_coverage :branch
+  primary_coverage :branch
+  minimum_coverage line: 100, branch: 100
+end
 
 require("ruby_flow")
 Dir.glob("lib/**/*.rb").each { require_relative("../#{_1}") }
