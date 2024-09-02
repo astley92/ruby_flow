@@ -16,9 +16,7 @@ RSpec.describe RubyFlow::CLI::Commands::Visualize do
 
   before do
     allow(File).to receive(:open).and_call_original
-    allow(File).to receive(:open).with("spec/tmp/output.md", "w") do |&block|
-      block.call(output)
-    end
+    allow(File).to receive(:open).with("spec/tmp/output.md", "w").and_yield(output)
   end
 
   it "generates the expected visualization" do
